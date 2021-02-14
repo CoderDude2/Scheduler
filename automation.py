@@ -1,11 +1,20 @@
 import json
 import time
+import event
 
-class Event:
-    def __init__(self, name, date, _time, actions, repeat):
-        self.name = name
-        self.date = date
-        self._time = _time
-        self.actions = actions
-        self.repeat = repeat
+def main():
+    events = event.loadEvents()
 
+    for e in events:
+        if(event.checkTime(e) and event.checkDate(e) and e.isDone == False):
+            print("Time reached")
+            e.isDone = True
+            event.saveEvents(events)
+    
+    time.sleep(1)
+
+while True:
+    try:
+        main()
+    except KeyboardInterrupt:
+        exit()
