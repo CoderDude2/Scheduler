@@ -6,9 +6,18 @@ def main():
     events = event.loadEvents()
 
     for e in events:
-        if(event.checkTime(e) and event.checkDate(e) and e.isDone == False):
-            print("Time reached")
-            e.isDone = True
+        if(event.checkTime(e) and event.checkDate(e) and e.repeat[0] == 7 and e.ran == False):
+            print("Done")
+            #actions.doActions(e.actions)
+            del(events[events.index(e)])
+            event.saveEvents(events)
+        elif(event.checkTime(e) and event.checkDay(e) and e.ran == False):
+            print("Done")
+            #actions.doActions(e.actions)
+            e.ran = True
+            event.saveEvents(events)
+        elif(event.checkTime(e) == False and event.checkDay(e) == True and e.ran == True):
+            e.ran = False
             event.saveEvents(events)
     
     time.sleep(1)
