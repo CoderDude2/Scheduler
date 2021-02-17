@@ -10,6 +10,10 @@ eventList = {
 def clear():
     os.system("clear")
 
+def displayEvents():
+    for e in eventList['events']:
+        print(e.name,e.date,e._time)
+
 def addActions():
     actions = []
     while True:
@@ -65,6 +69,10 @@ def createEvent():
 def main():
     eventList['events'] = event.loadEvents()
     clear()
+    print("Events:")
+    print("-"*20)
+    displayEvents()
+    print("-"*20)
     print("1) New Event")
     print("2) Delete Event")
     print("3) Exit")

@@ -1,1 +1,14 @@
-[]
+[
+    {
+        "name": "Test",
+        "date": "2/17/2021",
+        "_time": "12:00 PM",
+        "actions": [
+            "Notify+Titl+Message"
+        ],
+        "repeat": [
+            7
+        ],
+        "ran": false
+    }
+]
