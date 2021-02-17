@@ -1,11 +1,6 @@
 import webbrowser
 import os
 
-actions = [
-    'Open Link "https://www.google.com"',
-    'Notfiy "Title" "Message"'
-]
-
 def openBrowser(url):
     webbrowser.open(url)
 
@@ -15,22 +10,17 @@ def openFile(path):
 def openFolder(path):
     os.system(f'open {path}')
 
-tokens = []
-token = ''
+def notify(title, message):
+    os.system(f'osascript -e \'display notification "{message}" with title "{title}"\'')
 
-for action in actions:
-    for char in action:
-        token+=char
-        if(token == ' '):
-            token = ''
-        elif(token == 'Open'):
-            tokens.append(token)
-            token = ''
-        elif(token == 'Link'):
-            tokens.append(token)
-            token = ''
-        elif(token == '"'):
-            string = ''
-
-print(tokens)
-print(token)
+def parseActions(listOfActions):
+    for action in listOfActions:
+        action = action.split('+')
+        if(action[0] == 'Open' and action[1] == 'Link'):
+            openBrowser(action[2])
+        elif(action[0] == 'Open' and action[1] == 'File'):
+            openFile(action[2])
+        elif(action[0] == 'Open' and action[1] == 'Folder'):
+            openFolder(action[2])
+        elif(action[0] == 'Notify'):
+            notify(action[1], action[2])

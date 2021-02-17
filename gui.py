@@ -17,13 +17,26 @@ def addActions():
         print("1) Open Link")
         print("2) Open File")
         print("3) Open Folder")
-        print("4) Done")
+        print()
+        print("4) Notify")
+        print()
+        print("5) Done")
         inp = str(input("Enter Number: "))
 
         if(inp == "1"):
             link = str(input("Enter Link: "))
-            actions.append(f'Open Link {link}')
-        if(inp == "4"):
+            actions.append(f'Open+Link+{link}')
+        elif(inp == "2"):
+            path = str(input("Enter Path to file: "))
+            actions.append(f'Open+File+{path}')
+        elif(inp == "3"):
+            path = str(input("Enter Path to folder"))
+            actions.append(f'Open+Folder+{path}')
+        elif(inp == "4"):
+            title = str(input("Enter Title: "))
+            message = str(input("Enter Message: "))
+            actions.append(f'Notify+{title}+{message}')
+        elif(inp == "5"):
             return actions
 
 def repeatOptions():
