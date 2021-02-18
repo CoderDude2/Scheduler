@@ -33,7 +33,7 @@ def saveEvents(eventList):
 def loadEvents():
     if(os.path.isfile('events.json')):
         events = []
-        with open('/Users/isaacboots/Desktop/My Folder/Development/Programs/Python/Scheduler/events.json', 'r') as file:
+        with open('events.json', 'r') as file:
             contents = file.read()
 
         contents = json.loads(contents)
@@ -42,10 +42,10 @@ def loadEvents():
             events.append(unformattedEvent)
         return events
     else:
-        with open('/Users/isaacboots/Desktop/My Folder/Development/Programs/Python/Scheduler/events.json', 'w+') as file:
+        with open('events.json', 'w+') as file:
             file.write("[]")
 
-        with open('/Users/isaacboots/Desktop/My Folder/Development/Programs/Python/Scheduler/events.json', 'r') as file:
+        with open('events.json', 'r') as file:
             contents = file.read()
 
         contents = json.loads(contents)
