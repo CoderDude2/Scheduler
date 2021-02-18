@@ -1,5 +1,6 @@
 import json
 import time
+import os
 
 class Event:
     def __init__(self, name, date, _time, actions, repeat, ran=False):
@@ -30,37 +31,52 @@ def saveEvents(eventList):
 
 #opens the events.json file and converts the contents into Event objects, the list of objects are then returned
 def loadEvents():
-    events = []
-    with open('events.json', 'r') as file:
-        contents = file.read()
+    if(os.path.isfile('events.json')):
+        events = []
+        with open('events.json', 'r') as file:
+            contents = file.read()
 
-    contents = json.loads(contents)
-    for event in contents:
-        unformattedEvent = Event(event['name'], event['date'], event['_time'], event['actions'], event['repeat'], event['ran'])
-        events.append(unformattedEvent)
-    return events
+        contents = json.loads(contents)
+        for event in contents:
+            unformattedEvent = Event(event['name'], event['date'], event['_time'], event['actions'], event['repeat'], event['ran'])
+            events.append(unformattedEvent)
+        return events
+    else:
+        with open('events.json', 'w+') as file:
+            file.write("[]")
 
 #compares the time of the passed in event with the current local time
 def checkTime(event):
-    currentTime = time.localtime()
-    eventTime = time.strptime(event._time, "%I:%M %p")
-    if(currentTime.tm_hour == eventTime.tm_hour and currentTime.tm_min == eventTime.tm_min):
-        return True
-    return False
+    try:
+        currentTime = time.localtime()
+        eventTime = time.strptime(event._time, "%I:%M %p")
+        if(currentTime.tm_hour == eventTime.tm_hour and currentTime.tm_min == eventTime.tm_min):
+            return True
+        return False
+    except ValueError:
+        print("Incorrect Time Format!")
 
 #compares the date of the passed in event with the current date
 def checkDate(event):
-    currentDate = time.localtime()
-    eventDate = time.strptime(event.date, "%m/%d/%Y")
-    if(currentDate.tm_mday == eventDate.tm_mday and currentDate.tm_mon == eventDate.tm_mon and currentDate.tm_year == eventDate.tm_year):
-        return True
-    return False
+    try:
+        currentDate = time.localtime()
+        eventDate = time.strptime(event.date, "%m/%d/%Y")
+        if(currentDate.tm_mday == eventDate.tm_mday and currentDate.tm_mon == eventDate.tm_mon and currentDate.tm_year == eventDate.tm_year):
+            return True
+        return False
+    except ValueError:
+        print("Invalid Date Format!")
 
 def checkDay(event):
     currentDay = time.localtime().tm_wday
     for num in event.repeat:
         if(num == currentDay):
-            return True
-        else:
-            return False
+            return True    
+    return False
 
+def checkDateGTE(event):
+    currentDate = time.localtime()
+    eventDate = time.strptime(event.date, "%m/%d/%Y")
+    if(currentDate.tm_yday >= eventDate.tm_yday):
+        return True
+    return False
