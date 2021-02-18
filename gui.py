@@ -1,4 +1,4 @@
-import event
+from event import Event, saveEvents, loadEvents
 import os
 
 eventList = {
@@ -82,7 +82,7 @@ def createEvent():
     if(repeat == None):
         return
 
-    newEvent = event.Event(name, date, _time, actions, repeat)
+    newEvent = Event(name, date, _time, actions, repeat)
     return newEvent
 
 def deleteEvent():
@@ -93,14 +93,14 @@ def deleteEvent():
             return
         try:
             del(eventList['events'][int(inp)-1])
-            event.saveEvents(eventList['events'])
+            saveEvents(eventList['events'])
         except ValueError:
             print()
             print("Invalid Input!")
             input("Press Enter to continue...")
 
 def main():
-    eventList['events'] = event.loadEvents()
+    eventList['events'] = loadEvents()
     clear()
     print("Events:")
     print("-"*20)
@@ -116,7 +116,7 @@ def main():
         e = createEvent()
         if(e != None):
             eventList['events'].append(e)
-            event.saveEvents(eventList['events'])
+            saveEvents(eventList['events'])
     elif(inp == "2"):
         deleteEvent()
     elif(inp == "3"):
