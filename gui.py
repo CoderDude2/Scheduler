@@ -8,7 +8,10 @@ eventList = {
 }
 
 def clear():
-    os.system("clear")
+    if(os.name == 'nt'):
+        os.system('cls')
+    else:
+        os.system("clear")
 
 def displayEvents():
     for e in eventList['events']:
@@ -19,28 +22,22 @@ def addActions():
     while True:
         clear()
         print("1) Open Link")
-        print("2) Open File")
-        print("3) Open Folder")
-        print()
-        print("4) Notify")
-        print()
-        print("5) Done")
+        print("2) Open File/Folder")
+        print("3) Notify")
+        print("4) Done")
         inp = str(input("Enter Number: "))
 
         if(inp == "1"):
             link = str(input("Enter Link: "))
             actions.append(f'Open+Link+{link}')
         elif(inp == "2"):
-            path = str(input("Enter Path to file: "))
-            actions.append(f'Open+File+{path}')
+            path = str(input("Enter Path to file or folder: "))
+            actions.append(f'Open+Path+{path}')
         elif(inp == "3"):
-            path = str(input("Enter Path to folder"))
-            actions.append(f'Open+Folder+{path}')
-        elif(inp == "4"):
             title = str(input("Enter Title: "))
             message = str(input("Enter Message: "))
             actions.append(f'Notify+{title}+{message}')
-        elif(inp == "5"):
+        elif(inp == "4"):
             return actions
 
 def repeatOptions():
