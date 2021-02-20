@@ -20,30 +20,61 @@ def displayEvents(num=False):
             for i,e in enumerate(eventList['events']):
                 print(i+1, e.name)
 
-def addActions():
-    actions = []
+def displayActions(actions, num=False):
+    if(num == False):
+        for a in actions:
+            a = a.split('+')
+            print(' '.join(a))
+    elif(num == True):
+        for i,a in enumerate(actions):
+            a = a.split('+')
+            print(i+1,' '.join(a))
+
+def actionEditor(event=None):
+    if(event != None):
+        actions = event.actions
+    else:
+        actions = []
     while True:
         clear()
-        print("1) Open Link")
-        print("2) Open File/Folder")
-        print("3) Notify")
-        print("4) Done")
+        print("Actions:")
+        print("-"*20)
+        displayActions(actions)
+        print("-"*20)
+        print("1) Add Action")
+        print("2) Remove Action")
+        print("3) Save")
         inp = str(input("Enter Number: "))
 
         if(inp == "1"):
-            link = str(input("Enter Link: "))
-            actions.append(f'Open+Link+{link}')
-        elif(inp == "2"):
-            path = str(input("Enter Path to file or folder: "))
-            actions.append(f'Open+Path+{path}')
+            clear()
+            print("1) Open Link")
+            print("2) Open Path")
+            print("3) Notify")
+            actionInp = str(input("Enter Number: "))
+
+            if(actionInp == "1"):
+                link = str(input("Enter Link: "))
+                actions.append(f'Open+Link+{link}')
+            elif(actionInp == "2"):
+                path = str(input("Enter Path to file or folder: "))
+                actions.append(f'Open+Path+{path}')
+            elif(actionInp == "3"):
+                title = str(input("Enter Title: "))
+                message = str(input("Enter Message: "))
+                actions.append(f'Notify+{title}+{message}')
+        elif(inp == "2" and len(actions) > 0):
+            clear()
+            displayActions(actions, num=True)
+            actionInp = str(input("Enter Number: "))
+            if(actionInp.isdigit()):
+                del(actions[int(actionInp) - 1])
         elif(inp == "3"):
-            title = str(input("Enter Title: "))
-            message = str(input("Enter Message: "))
-            actions.append(f'Notify+{title}+{message}')
-        elif(inp == "$c"):
-            return
-        elif(inp == "4"):
-            return actions
+            if(event == None):
+                return actions
+            else:
+                event.actions = actions
+                return
 
 def repeatOptions():
     print("1 Monday")
@@ -74,7 +105,7 @@ def createEvent():
     if(_time == "$c"):
         return
 
-    actions = addActions()
+    actions = actionEditor()
     if(actions == None):
         return
 
@@ -84,6 +115,46 @@ def createEvent():
 
     newEvent = Event(name, date, _time, actions, repeat)
     return newEvent
+
+def editEvent():
+    clear()
+    displayEvents(num=True)
+    eventNum = str(input("Enter Number: "))
+    if(eventNum.isdigit()):
+        selectedEvent = eventList['events'][int(eventNum) - 1]
+    elif(eventNum == "$c"):
+        return
+
+    while True:
+        clear()
+        print("1) Edit Name")
+        print("2) Edit Date")
+        print("3) Edit Time")
+        print("4) Edit Action")
+        print("5) Edit Repeat")
+        print("6) Save Changes")
+        inp = str(input("Enter Number: "))
+
+        if(inp == "1"):
+            name = str(input("Enter Name: "))
+            selectedEvent.name = name
+        elif(inp == "2"):
+            date = str(input("Enter Date: "))
+            selectedEvent.date = date
+        elif(inp == "3"):
+            _time = str(input("Enter Time: "))
+            selectedEvent._time = _time
+        elif(inp == "4"):
+            actionEditor(selectedEvent)
+        elif(inp == "5"):
+            clear()
+            selectedEvent.repeat = repeatOptions()
+        elif(inp == "6"):
+            saveEvents(eventList['events'])
+            return
+        elif(inp == "$c"):
+            return
+
 
 def deleteEvent():
     if(len(eventList['events']) > 0):
@@ -109,7 +180,8 @@ def main():
 
     print("1) New Event")
     print("2) Delete Event")
-    print("3) Exit")
+    print("3) Edit Event")
+    print("4) Exit")
     inp = str(input("Enter Number: "))
 
     if(inp == "1"):
@@ -120,6 +192,8 @@ def main():
     elif(inp == "2"):
         deleteEvent()
     elif(inp == "3"):
+        editEvent()
+    elif(inp == "4"):
         exit()
 
 while True:
