@@ -14,6 +14,9 @@ def openPath(path):
 def notify(title, message):
     notification.notify(title=title, message=message, timeout=5)
 
+def runCommand(command):
+    os.system(command)
+
 def parseActions(listOfActions):
     for action in listOfActions:
         action = action.split('+')
@@ -23,3 +26,9 @@ def parseActions(listOfActions):
             openPath(action[2])
         elif(action[0] == 'Notify'):
             notify(action[1], action[2])
+        elif(action[0] == 'Run'):
+            runCommand(action[1])
+
+
+
+

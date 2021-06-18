@@ -51,6 +51,7 @@ def actionEditor(event=None):
             print("1) Open Link")
             print("2) Open Path")
             print("3) Notify")
+            print("4) Run Command")
             actionInp = str(input("Enter Number: "))
 
             if(actionInp == "1"):
@@ -63,6 +64,9 @@ def actionEditor(event=None):
                 title = str(input("Enter Title: "))
                 message = str(input("Enter Message: "))
                 actions.append(f'Notify+{title}+{message}')
+            elif(actionInp == "4"):
+                command = str(input("Enter Command Line Command: "))
+                actions.append(f'Run+{command}')
         elif(inp == "2" and len(actions) > 0):
             clear()
             displayActions(actions, num=True)
