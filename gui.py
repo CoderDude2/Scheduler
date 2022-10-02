@@ -118,6 +118,7 @@ def createEvent():
         return
 
     newEvent = Event(name, date, _time, actions, repeat)
+    eventList["events"].append(newEvent)
     return newEvent
 
 def editEvent():
@@ -191,7 +192,6 @@ def main():
     if(inp == "1"):
         e = createEvent()
         if(e != None):
-            eventList['events'].append(e)
             saveEvents(eventList['events'])
     elif(inp == "2"):
         deleteEvent()
