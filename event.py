@@ -1,14 +1,16 @@
 import json
+from re import A
 import time
 import os
 from dataclasses import dataclass
+from action import Action
 
 @dataclass
 class Event:
     name: str
     date: str
     _time: str
-    actions: list[str]
+    actions: list
     repeat: list[int]
     ran: bool = False
 
@@ -21,7 +23,7 @@ def saveEvents(eventList):
             "name":event.name,
             "date":event.date,
             "_time":event._time,
-            "actions":event.actions,
+            "actions":[a.serialize() for a in event.actions],
             "repeat":event.repeat,
             "ran":event.ran
         }
@@ -39,9 +41,17 @@ def loadEvents():
 
         contents = json.loads(contents)
         for event in contents:
-            unformattedEvent = Event(event['name'], event['date'], event['_time'], event['actions'], event['repeat'], event['ran'])
+            # Converts json formatted actions to Action objects
+            actions = []
+            for a in event['actions']:
+                action = Action(a[0], *a[1])
+                actions.append(action)
+
+            unformattedEvent = Event(event['name'], event['date'], event['_time'], actions, event['repeat'], event['ran'])
+
             events.append(unformattedEvent)
         return events
+    # If events.json file does not exist, create it and initialize it
     else:
         with open('events.json', 'w+') as file:
             file.write("[]")

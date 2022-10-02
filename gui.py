@@ -1,9 +1,9 @@
+from asyncio.subprocess import Process
+from action import Action
 from event import Event, saveEvents, loadEvents
 import os
 
-eventList = {
-    "events":[]
-}
+_events = []
 
 def clear():
     if(os.name == 'nt'):
@@ -12,35 +12,38 @@ def clear():
         os.system("clear")
 
 def displayEvents(num=False):
-    if(eventList['events'] != None):
+    print("Events:")
+    print("-"*20)
+    if(_events != None):
         if(num == False):
-            for e in eventList['events']:
+            for e in _events:
                 print(e.name,e.date,e._time)
         elif(num == True):
-            for i,e in enumerate(eventList['events']):
+            for i,e in enumerate(_events):
                 print(i+1, e.name)
+    print("-"*20)
 
 def displayActions(actions, num=False):
+    print("Actions:")
+    print("-"*20)
     if(num == False):
         for a in actions:
-            a = a.split('+')
-            print(' '.join(a))
+            print(a)
     elif(num == True):
         for i,a in enumerate(actions):
-            a = a.split('+')
-            print(i+1,' '.join(a))
+            print(i+1,a)
+    print("-"*20)
 
 def actionEditor(event=None):
     if(event != None):
         actions = event.actions
     else:
         actions = []
+    
     while True:
         clear()
-        print("Actions:")
-        print("-"*20)
         displayActions(actions)
-        print("-"*20)
+
         print("1) Add Action")
         print("2) Remove Action")
         print("3) Save")
@@ -56,17 +59,21 @@ def actionEditor(event=None):
 
             if(actionInp == "1"):
                 link = str(input("Enter Link: "))
-                actions.append(f'Open+Link+{link}')
+                action = Action("Open", "Link", link)
+                actions.append(action)
             elif(actionInp == "2"):
                 path = str(input("Enter Path to file or folder: "))
-                actions.append(f'Open+Path+{path}')
+                action = Action("Open", "Path", path)
+                actions.append(action)
             elif(actionInp == "3"):
                 title = str(input("Enter Title: "))
                 message = str(input("Enter Message: "))
-                actions.append(f'Notify+{title}+{message}')
+                action = Action("Notify", title, message)
+                actions.append(action)
             elif(actionInp == "4"):
                 command = str(input("Enter Command Line Command: "))
-                actions.append(f'Run+{command}')
+                action = Action("Run", command)
+                actions.append(action)
         elif(inp == "2" and len(actions) > 0):
             clear()
             displayActions(actions, num=True)
@@ -97,6 +104,7 @@ def repeatOptions():
     return inp
 
 def createEvent():
+    clear()
     name = str(input("Enter Name: "))
     if(name == "$c"):
         return
@@ -118,15 +126,15 @@ def createEvent():
         return
 
     newEvent = Event(name, date, _time, actions, repeat)
-    eventList["events"].append(newEvent)
-    return newEvent
+    _events.append(newEvent)
+    saveEvents(_events)
 
 def editEvent():
     clear()
     displayEvents(num=True)
     eventNum = str(input("Enter Number: "))
     if(eventNum.isdigit()):
-        selectedEvent = eventList['events'][int(eventNum) - 1]
+        selectedEvent = _events[int(eventNum) - 1]
     elif(eventNum == "$c"):
         return
 
@@ -155,33 +163,30 @@ def editEvent():
             clear()
             selectedEvent.repeat = repeatOptions()
         elif(inp == "6"):
-            saveEvents(eventList['events'])
+            saveEvents(_events)
             return
         elif(inp == "$c"):
             return
 
 
 def deleteEvent():
-    if(len(eventList['events']) > 0):
+    if(len(_events) > 0):
         displayEvents(num=True)
         inp = str(input("Enter Number: "))
         if(inp == "$c"):
             return
         try:
-            del(eventList['events'][int(inp)-1])
-            saveEvents(eventList['events'])
+            del(_events[int(inp)-1])
+            saveEvents(_events)
         except ValueError:
             print()
             print("Invalid Input!")
             input("Press Enter to continue...")
 
 def main():
-    eventList['events'] = loadEvents()
+    _events = loadEvents()
     clear()
-    print("Events:")
-    print("-"*20)
     displayEvents()
-    print("-"*20)
 
     print("1) New Event")
     print("2) Delete Event")
@@ -190,9 +195,7 @@ def main():
     inp = str(input("Enter Number: "))
 
     if(inp == "1"):
-        e = createEvent()
-        if(e != None):
-            saveEvents(eventList['events'])
+       createEvent()
     elif(inp == "2"):
         deleteEvent()
     elif(inp == "3"):
@@ -202,6 +205,7 @@ def main():
 
 while True:
     try:
+        _events = loadEvents()
         main()
     except KeyboardInterrupt:
         exit()

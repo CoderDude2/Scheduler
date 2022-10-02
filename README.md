@@ -1,6 +1,6 @@
 # Scheduler
 
-Version 0.5.5
+Version 0.6.5
 
 Automation program written in Python 3
 
