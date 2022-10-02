@@ -1,15 +1,16 @@
 import json
 import time
 import os
+from dataclasses import dataclass
 
+@dataclass
 class Event:
-    def __init__(self, name, date, _time, actions, repeat, ran=False):
-        self.name = name
-        self.date = date
-        self._time = _time
-        self.actions = actions
-        self.repeat = repeat
-        self.ran = ran
+    name: str
+    date: str
+    _time: str
+    actions: list[str]
+    repeat: list[int]
+    ran: bool = False
 
 #Converts the Event object into a dictionary and saves it to the events.json file
 def saveEvents(eventList):

@@ -2,7 +2,7 @@ import webbrowser
 import os
 from plyer import notification
 
-def openBrowser(url):
+def openLink(url):
     webbrowser.open(url)
 
 def openPath(path):
@@ -21,14 +21,10 @@ def parseActions(listOfActions):
     for action in listOfActions:
         action = action.split('+')
         if(action[0] == 'Open' and action[1] == 'Link'):
-            openBrowser(action[2])
+            openLink(action[2])
         elif(action[0] == 'Open' and action[1] == 'Path'):
             openPath(action[2])
         elif(action[0] == 'Notify'):
             notify(action[1], action[2])
         elif(action[0] == 'Run'):
             runCommand(action[1])
-
-
-
-
