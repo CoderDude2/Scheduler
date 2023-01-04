@@ -1,35 +1,43 @@
 import json
-from re import A
-import time
 import os
-from dataclasses import dataclass
-from action import Action
+import time
 
-@dataclass
+import action   
+
 class Event:
-    name: str
-    date: str
-    _time: str
-    actions: list
-    repeat: list[int]
-    ran: bool = False
+    def __init__(self, name=None, date=None, _time = None, actions = [], repeat = [], ran=False):
+        self.name = name
+        self.date = date
+        self._time = _time
+        self.actions = actions
+        self.repeat = repeat
+        self.ran = ran
+    
+    def serialize(self):
+        formattedEvent = {
+            "name": self.name,
+            "date": self.date,
+            "_time":self._time,
+            "actions": [a.serialize() for a in self.actions],
+            "repeat": self.repeat,
+            "ran": self.ran
+        }
+        return formattedEvent
+
+def deserialize(event):
+    formatted_actions = [action.deserialize(a) for a in event['actions']]
+    unformatted_event = Event(event['name'], event['date'], event['_time'], formatted_actions, event['repeat'], event['ran'])
+    return unformatted_event
+    
 
 #Converts the Event object into a dictionary and saves it to the events.json file
 def saveEvents(eventList):
     events = []
 
     for event in eventList:
-        formattedEvent = {
-            "name":event.name,
-            "date":event.date,
-            "_time":event._time,
-            "actions":[a.serialize() for a in event.actions],
-            "repeat":event.repeat,
-            "ran":event.ran
-        }
-        events.append(formattedEvent)
+        events.append(event.serialize())
 
-    with open('events.json', 'w') as file:
+    with open('events.json', 'w+') as file:
         file.write(json.dumps(events, indent=4))
 
 #opens the events.json file and converts the contents into Event objects, the list of objects are then returned
@@ -41,26 +49,14 @@ def loadEvents():
 
         contents = json.loads(contents)
         for event in contents:
-            # Converts json formatted actions to Action objects
-            actions = []
-            for a in event['actions']:
-                action = Action(a[0], *a[1])
-                actions.append(action)
+            deserialized_event = deserialize(event)
+            # unformattedEvent = Event(event['name'], event['date'], event['_time'], actions, event['repeat'], event['ran'])
 
-            unformattedEvent = Event(event['name'], event['date'], event['_time'], actions, event['repeat'], event['ran'])
-
-            events.append(unformattedEvent)
+            events.append(deserialized_event)
         return events
+
     # If events.json file does not exist, create it and initialize it
-    else:
-        with open('events.json', 'w+') as file:
-            file.write("[]")
-
-        with open('events.json', 'r') as file:
-            contents = file.read()
-
-        contents = json.loads(contents)
-        return contents
+    return []
 
 #compares the time of the passed in event with the current local time
 def checkTime(event):
@@ -92,8 +88,7 @@ def checkDay(event):
     return False
 
 def checkDateGTE(event):
-    currentDate = time.localtime()
     eventDate = time.strptime(event.date, "%m/%d/%Y")
-    if(currentDate.tm_yday >= eventDate.tm_yday):
+    if(time.localtime() >= eventDate):
         return True
     return False

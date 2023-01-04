@@ -1,7 +1,9 @@
-from asyncio.subprocess import Process
+import time
+import os
+import time
+
 from action import Action
 from event import Event, saveEvents, loadEvents
-import os
 
 _events = []
 
@@ -17,7 +19,7 @@ def displayEvents(num=False):
     if(_events != None):
         if(num == False):
             for e in _events:
-                print(e.name,e.date,e._time)
+                print(e.name, e.date, e._time)
         elif(num == True):
             for i,e in enumerate(_events):
                 print(i+1, e.name)
@@ -110,6 +112,8 @@ def createEvent():
         return
 
     date = str(input("Enter Date (mm/dd/yy): "))
+    if(date == "today"):
+        date = time.strftime("%m/%d/%Y", time.localtime())
     if(date == "$c"):
         return
 
