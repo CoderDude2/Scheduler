@@ -1,7 +1,9 @@
 import time
 import os
 import time
+import threading
 
+import automation
 from action import Action
 from event import Event, saveEvents, loadEvents
 
@@ -207,9 +209,19 @@ def main():
     elif(inp == "4"):
         exit()
 
+run = True
+def run_automation():
+    while run:
+        automation.main()
+        return run
+
+a = threading.Thread(target=run_automation)
+a.start()
+
 while True:
     try:
         _events = loadEvents()
         main()
     except KeyboardInterrupt:
+        run = False
         exit()

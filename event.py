@@ -2,7 +2,7 @@ import json
 import os
 import time
 
-import action   
+import action
 
 class Event:
     def __init__(self, name=None, date=None, _time = None, actions = [], repeat = [], ran=False):
@@ -54,7 +54,6 @@ def loadEvents():
 
             events.append(deserialized_event)
         return events
-
     # If events.json file does not exist, create it and initialize it
     return []
 
