@@ -6,6 +6,7 @@ import threading
 import automation
 from action import Action
 from event import Event, saveEvents, loadEvents
+from igui import menu, parse_input
 
 _events = []
 
@@ -16,16 +17,25 @@ def clear():
         os.system("clear")
 
 def displayEvents(num=False):
+
+    if(_events == None):
+        return
+
+    formatted_strings = []
+    
+    if(num == False):
+        for e in _events:
+            formatted_strings.append(f'{e.name} | {e.date} | {e._time}')
+    elif(num == True):
+        for i,e in enumerate(_events):
+            formatted_strings.append(f'{i+1} {e.name}')
+    
+    longest_string = max(list(map(len, formatted_strings)))
+
     print("Events:")
-    print("-"*20)
-    if(_events != None):
-        if(num == False):
-            for e in _events:
-                print(e.name, e.date, e._time)
-        elif(num == True):
-            for i,e in enumerate(_events):
-                print(i+1, e.name)
-    print("-"*20)
+    print("-"*longest_string)
+    [print(_string) for _string in formatted_strings]
+    print("-"*longest_string)
 
 def displayActions(actions, num=False):
     print("Actions:")
@@ -90,8 +100,12 @@ def actionEditor(event=None):
             else:
                 event.actions = actions
                 return
+        else:
+            print("Invalid input!")
+            time.sleep(1)
 
 def repeatOptions():
+    clear()
     print("1 Monday")
     print("2 Tuesday")
     print("3 Wednesday")
@@ -103,9 +117,8 @@ def repeatOptions():
     inp = str(input("Enter numbers seperated by commas: "))
     if(inp == "$c"):
         return
-    inp = inp.split(',')
-    inp = [(int(i) - 1) for i in inp]
-    return inp
+    
+    return parse_input(inp)
 
 def createEvent():
     clear()
@@ -194,10 +207,13 @@ def main():
     clear()
     displayEvents()
 
-    print("1) New Event")
-    print("2) Delete Event")
-    print("3) Edit Event")
-    print("4) Exit")
+    menu(options=[
+        "New Event",
+        "Delete Event",
+        "Edit Event",
+        "Exit"
+    ])
+    
     inp = str(input("Enter Number: "))
 
     if(inp == "1"):
