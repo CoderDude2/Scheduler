@@ -8,37 +8,22 @@ def table(headers=[], entries=[]):
     pass
 
 
-def parse_input(msg, decrement_by_one=False):
-    if(len(msg) == 1):
-        try:
-            output = [int(msg)]
-            return output
-        except ValueError:
-            print("Invalid Input")
-            time.sleep(1)
-            return
+def parse_input(msg):
+    msg = ''.join(msg.split(" ")).split(',')
+    output = []
 
-    if('-' in msg):
-        try:
-            output = [int(i) for i in list(range( int(msg.split('-')[0]), int(msg.split('-')[1])+1))]
-        except ValueError:
-            print("Invalid Input!")
-            time.sleep(1)
-            return
-        
-        for i in output:
-            if(i < 0):
+    for i, inp in enumerate(msg):
+        if('-' in inp):
+            try:
+                minimum_value = int(inp.split('-')[0])
+                maximum_value = int(inp.split('-')[1])
+                [output.append(i) for i in list(range(minimum_value, maximum_value+1)) if i not in output]
+            except ValueError:
                 return
-        return output
-    
-    if("," in msg):
-        try:
-            output = [int(i) for i in msg.split(",")]
-            for i in output:
-                if(i < 0):
-                    return
-            return output
-        except ValueError:
-            print("Invalid Input!")
-            time.sleep(1)
-            return
+        else:
+            try:
+                if(int(inp) not in output):
+                    output.append(int(inp))
+            except ValueError:
+                return
+    return output
