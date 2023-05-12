@@ -1,18 +1,15 @@
-import time
-
-def menu(options=[]) -> list[int]:
+def menu(options=[]):
     for i, option in enumerate(options):
         print(f'{i+1}) {option}')
 
-def table(headers=[], entries=[]):
+def table(headers=[]):
     pass
 
-
-def parse_input(msg):
+def parse_input(msg) -> list[int]:
     msg = ''.join(msg.split(" ")).split(',')
     output = []
 
-    for i, inp in enumerate(msg):
+    for index, inp in enumerate(msg):
         if('-' in inp):
             try:
                 minimum_value = int(inp.split('-')[0])

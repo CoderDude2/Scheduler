@@ -1,243 +1,118 @@
-import time
+import igui
+import event
 import os
 import time
-import threading
-
-import automation
-from action import Action
-from event import Event, saveEvents, loadEvents
-from igui import menu, parse_input
-
-_events = []
+from datetime import datetime, date, time
+import calendar
 
 def clear():
     if(os.name == 'nt'):
         os.system('cls')
     else:
-        os.system("clear")
+        os.system('clear')
 
-def displayEvents(num=False):
+def action_editor():
+    raise NotImplementedError
 
-    if(_events == None):
-        return
-
-    formatted_strings = []
-    
-    if(num == False):
-        for e in _events:
-            formatted_strings.append(f'{e.name} | {e.date} | {e._time}')
-    elif(num == True):
-        for i,e in enumerate(_events):
-            formatted_strings.append(f'{i+1} {e.name}')
-    
-    longest_string = max(list(map(len, formatted_strings)))
-
-    print("Events:")
-    print("-"*longest_string)
-    [print(_string) for _string in formatted_strings]
-    print("-"*longest_string)
-
-def displayActions(actions, num=False):
-    print("Actions:")
-    print("-"*20)
-    if(num == False):
-        for a in actions:
-            print(a)
-    elif(num == True):
-        for i,a in enumerate(actions):
-            print(i+1,a)
-    print("-"*20)
-
-def actionEditor(event=None):
-    if(event != None):
-        actions = event.actions
-    else:
-        actions = []
+def repeat_menu():
+    output = {'days':[], 'repeat':0}
     
     while True:
         clear()
-        displayActions(actions)
 
-        print("1) Add Action")
-        print("2) Remove Action")
-        print("3) Save")
-        inp = str(input("Enter Number: "))
+        igui.menu(options=[
+            "Weekly",
+            "Bi-Weekly",
+            "Monthly",
+            "Yearly",
+            "Never"
+        ])
 
-        if(inp == "1"):
-            clear()
-            print("1) Open Link")
-            print("2) Open Path")
-            print("3) Notify")
-            print("4) Run Command")
-            actionInp = str(input("Enter Number: "))
+        inp = input()
 
-            if(actionInp == "1"):
-                link = str(input("Enter Link: "))
-                action = Action("Open", "Link", link)
-                actions.append(action)
-            elif(actionInp == "2"):
-                path = str(input("Enter Path to file or folder: "))
-                action = Action("Open", "Path", path)
-                actions.append(action)
-            elif(actionInp == "3"):
-                title = str(input("Enter Title: "))
-                message = str(input("Enter Message: "))
-                action = Action("Notify", title, message)
-                actions.append(action)
-            elif(actionInp == "4"):
-                command = str(input("Enter Command Line Command: "))
-                action = Action("Run", command)
-                actions.append(action)
-        elif(inp == "2" and len(actions) > 0):
-            clear()
-            displayActions(actions, num=True)
-            actionInp = str(input("Enter Number: "))
-            if(actionInp.isdigit()):
-                del(actions[int(actionInp) - 1])
-        elif(inp == "3"):
-            if(event == None):
-                return actions
-            else:
-                event.actions = actions
-                return
-        else:
-            print("Invalid input!")
-            time.sleep(1)
-
-def repeatOptions():
-    clear()
-    print("1 Monday")
-    print("2 Tuesday")
-    print("3 Wednesday")
-    print("4 Thursday")
-    print("5 Friday")
-    print("6 Saturday")
-    print("7 Sunday")
-    print("8 Never")
-    inp = str(input("Enter numbers seperated by commas: "))
-    if(inp == "$c"):
-        return
-    
-    return parse_input(inp)
-
-def createEvent():
-    clear()
-    name = str(input("Enter Name: "))
-    if(name == "$c"):
-        return
-
-    date = str(input("Enter Date (mm/dd/yy): "))
-    if(date == "today"):
-        date = time.strftime("%m/%d/%Y", time.localtime())
-    if(date == "$c"):
-        return
-
-    _time = str(input("Enter time (hh:mm am/pm): "))
-    if(_time == "$c"):
-        return
-
-    actions = actionEditor()
-    if(actions == None):
-        return
-
-    repeat = repeatOptions()
-    if(repeat == None):
-        return
-
-    newEvent = Event(name, date, _time, actions, repeat)
-    _events.append(newEvent)
-    saveEvents(_events)
-
-def editEvent():
-    clear()
-    displayEvents(num=True)
-    eventNum = str(input("Enter Number: "))
-    if(eventNum.isdigit()):
-        selectedEvent = _events[int(eventNum) - 1]
-    elif(eventNum == "$c"):
-        return
-
-    while True:
-        clear()
-        print("1) Edit Name")
-        print("2) Edit Date")
-        print("3) Edit Time")
-        print("4) Edit Action")
-        print("5) Edit Repeat")
-        print("6) Save Changes")
-        inp = str(input("Enter Number: "))
-
-        if(inp == "1"):
-            name = str(input("Enter Name: "))
-            selectedEvent.name = name
-        elif(inp == "2"):
-            date = str(input("Enter Date: "))
-            selectedEvent.date = date
-        elif(inp == "3"):
-            _time = str(input("Enter Time: "))
-            selectedEvent._time = _time
-        elif(inp == "4"):
-            actionEditor(selectedEvent)
-        elif(inp == "5"):
-            clear()
-            selectedEvent.repeat = repeatOptions()
-        elif(inp == "6"):
-            saveEvents(_events)
-            return
-        elif(inp == "$c"):
-            return
-
-
-def deleteEvent():
-    if(len(_events) > 0):
-        displayEvents(num=True)
-        inp = str(input("Enter Number: "))
-        if(inp == "$c"):
-            return
         try:
-            del(_events[int(inp)-1])
-            saveEvents(_events)
+            inp = int(inp)
+            if(inp == 1):
+                output['repeat'] = event.WEEKLY
+                break
+            elif(inp == 2):
+                output['repeat'] = event.BIWEEKLY
+                break
+            elif(inp == 3):
+                output['repeat'] = event.MONTHLY
+                break
+            elif(inp == 4):
+                output['repeat'] = event.YEARLY
+                break
+            elif(inp == 5):
+                output['repeat'] = event.NEVER
+                break
         except ValueError:
-            print()
-            print("Invalid Input!")
-            input("Press Enter to continue...")
+            if(inp == '$c'):
+                return None
+
+    if(output['repeat'] == event.WEEKLY or output['repeat'] == event.BIWEEKLY):  
+        while True:
+            clear()
+
+            igui.menu(options=[
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ])
+
+            days = input().lower()
+
+            if(days == "$c"):
+                return None
+            else:
+                output["days"] = igui.parse_input(days)
+            break
+    return output
+
+def get_date():
+    _date = input("Enter Event Date (MM/DD/YYYY): ").lower()
+    
+    if(_date == 'today'):
+        return datetime.now().date()
+    
+    _date = _date.split('/')
+    return date(year=int(_date[2]), month=int(_date[0]), day=int(_date[1]))
+
+def create_event() -> event.Event:
+    clear()
+    name = input("Enter Event Name: ")
+    _date = get_date()
+    _time = input("Enter Event Time (HH:MM AM/PM): ")    
+    repeat = repeat_menu()
+    # TODO
+    # Add action editor system
+    _event = event.Event(name, _date, _time, None, repeat)
+    return _event
 
 def main():
-    _events = loadEvents()
-    clear()
-    displayEvents()
+    while True:
+        clear()
+        igui.menu(options=[
+            "New Event",
+            "Edit Event",
+            "Delete Event",
+            "Exit"
+        ])
 
-    menu(options=[
-        "New Event",
-        "Delete Event",
-        "Edit Event",
-        "Exit"
-    ])
-    
-    inp = str(input("Enter Number: "))
+        inp = igui.parse_input(input())
+        if(inp):
+            if(len(inp) > 1):
+                print("Incorrect input")
+                time.sleep(1)
+            else:
+                if(inp[0] == 1):
+                    create_event()
+                if(inp[0] == 4):
+                    exit()
 
-    if(inp == "1"):
-       createEvent()
-    elif(inp == "2"):
-        deleteEvent()
-    elif(inp == "3"):
-        editEvent()
-    elif(inp == "4"):
-        exit()
-
-run = True
-def run_automation():
-    while run:
-        automation.main()
-        return run
-
-a = threading.Thread(target=run_automation)
-a.start()
-
-while True:
-    try:
-        _events = loadEvents()
-        main()
-    except KeyboardInterrupt:
-        run = False
-        exit()
+main()
