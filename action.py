@@ -2,6 +2,13 @@ import webbrowser
 import os
 from plyer import notification
 
+commands = {
+    "open":lambda *args: (os.system(f'open {args[0]}')),
+    "open-link":lambda *args: (webbrowser.open(args[0])),
+    "notify": lambda *args:(notification.notify(title=args[0], message=args[1], timeout=5)),
+    "run": lambda *args: (os.system(args[0]))
+}
+
 class Action:
     def __init__(self, command, *args):
         self.command = command
@@ -9,19 +16,10 @@ class Action:
 
     # Performs the action based on specific parameters
     def Do(self):
-        if(self.command == "Open"):
-            if(self.args[0] == "Link"):
-                webbrowser.open(self.args[1])
-            elif(self.args[0] == "Path"):
-                path = self.args[1]
-                if(os.name == "nt"):
-                    os.system(f'start {path}')
-                else:
-                    os.system(f'open "{path}"')
-        elif(self.command == "Notify"):
-            notification.notify(title=self.args[0], message=self.args[1], timeout=5)
-        elif(self.command == "Run"):
-            os.system(self.args[0])
+        if(self.command in commands):
+            commands[self.command](*self.args)
+        else:
+            print("Command not found")
 
     def __str__(self):
         msg = f'{self.command}'
@@ -38,3 +36,4 @@ class Action:
 
 def deserialize(action):
     return Action(action[0], *action[1])
+
