@@ -32,8 +32,7 @@ class Action:
 
     # Makes it possible to store Action object in json format
     def serialize(self):
-        return [self.command, self.args]
+        return {'command':self.command, 'args':self.args}
 
 def deserialize(action):
-    return Action(action[0], *action[1])
-
+    return Action(action["command"], *action["args"])

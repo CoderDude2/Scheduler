@@ -4,6 +4,7 @@ import time
 from datetime import date, datetime
 from datetime import time as dtime
 import threading
+import json
 
 import action
 import event
@@ -17,6 +18,19 @@ def clear():
         os.system('cls')
     else:
         os.system('clear')
+
+def save_events(events):
+    serialized_events = [e.serialize() for e in events]
+    json_events = json.dumps(serialized_events, indent=2)
+    with open('events.json', 'w') as file:
+        file.write(json_events)
+
+def load_events():
+    with open('events.json', 'r') as file:
+        contents = file.read()
+    
+    json_events = [event.deserialize(e) for e in json.loads(contents)]
+    return json_events
 
 def action_editor():
 
@@ -206,11 +220,20 @@ def create_event() -> event.Event:
 def delete_event():
     clear()
     igui.menu([e.name for e in events])
-    inp = igui.parse_input(input())
+    inp = input()
+
+    if(inp == '$c'):
+        return
+
+    inp = igui.parse_input(inp)
+
+    if(inp[0] == '$c'):
+        return
 
     events.pop(inp[0] - 1)
 
 def gui():
+    events = load_events()
     while True:
         clear()
         [print(e.name, e._date, e._time) for e in events]
@@ -231,13 +254,12 @@ def gui():
                 if(inp[0] == 1):
                     event = create_event()
                     if(event):
-                        # print(event.serialize())
-                        # input()
                         events.append(event)
                 elif(inp[0] == 3):
                     delete_event()
                 if(inp[0] == 4):
                     exit_event.set()
+                    save_events(events)
                     exit()
 
 def check_event(event_to_check:event.Event):
@@ -285,6 +307,10 @@ def event_checker(exit_event):
 exit_event = threading.Event()
 t = threading.Thread(target=event_checker, args=(exit_event, ))
 
-t.start()
-gui()
-t.join()
+def main():
+    t.start()
+    gui()
+    t.join()
+
+if __name__ == '__main__':
+    main()

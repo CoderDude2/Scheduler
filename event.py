@@ -1,5 +1,6 @@
 from datetime import date, time
 import calendar
+import action
 
 NEVER = 0
 WEEKLY = 1
@@ -29,10 +30,20 @@ class Event:
         self._time = time(hour, minute)
 
     def serialize(self):
-        return [self.name, (self._date.year, self._date.month, self._date.day), (self._time.hour, self._time.minute), self.actions, self.repeat]
+        return {'name':self.name, 
+                'date':(self._date.year, self._date.month, self._date.day), 
+                'time':(self._time.hour, self._time.minute), 
+                'actions':[a.serialize() for a in self.actions], 
+                'repeat':self.repeat}
 
     def __str__(self):
         return f"{self.name} {self._date} {self._time} {self.actions} {self.repeat}"
 
 def deserialize(event):
-    return Event(event[0], date(event[1][0], event[1][1], event[1][2]), time(event[2][0], event[2][1]), event[3], event[4])
+    return Event(
+        name=event["name"],
+        _date=date(event["date"][0], event["date"][1], event["date"][2]),
+        _time=time(event["time"][0], event["time"][1]),
+        actions=[action.deserialize(a) for a in event["actions"]],
+        repeat=event["repeat"]
+    )
