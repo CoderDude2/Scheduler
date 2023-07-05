@@ -275,22 +275,27 @@ def check_event(event_to_check:event.Event):
             return True
     elif(event_to_check.repeat['repeat'] == event.WEEKLY):
         if((current_date - event_to_check._date).days % 7 == 0 
+        and current_date >= event_to_check._date
         and current_time == event_to_check._time):
             return True
     elif(event_to_check.repeat['repeat'] == event.BIWEEKLY):
         if((current_date - event_to_check._date).days % 14 == 0 
+        and current_date >= event_to_check._date
         and current_time == event_to_check._time):
             return True
     elif(event_to_check.repeat['repeat'] == event.MONTHLY):
         if(current_date.day == calendar.monthrange(current_date.year, current_date.month)[1] 
         and event_to_check._date.day > current_date.day 
+        and current_date >= event_to_check._date
         and event_to_check._time == current_time):
             return True
         elif(current_date.day == event_to_check._date.day
+        and current_date >= event_to_check._date
         and current_time == event_to_check._time):
             return True
     elif(event_to_check.repeat['repeat'] == event.YEARLY):
         if((current_date - event_to_check._date).days % 365 == 0 
+        and current_date >= event_to_check._date
         and current_time == event_to_check._time):
             return True
     
