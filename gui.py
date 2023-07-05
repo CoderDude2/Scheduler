@@ -11,7 +11,7 @@ import event
 import igui
 
 
-events = []
+
 
 def clear():
     if(os.name == 'nt'):
@@ -31,6 +31,8 @@ def load_events():
     
     json_events = [event.deserialize(e) for e in json.loads(contents)]
     return json_events
+
+events = load_events()
 
 def action_editor():
 
@@ -218,6 +220,7 @@ def create_event() -> event.Event:
     return _event
 
 def delete_event():
+    global events
     clear()
     igui.menu([e.name for e in events])
     inp = input()
@@ -233,7 +236,7 @@ def delete_event():
     events.pop(inp[0] - 1)
 
 def gui():
-    events = load_events()
+    global events
     while True:
         clear()
         [print(e.name, e._date, e._time) for e in events]
@@ -294,11 +297,12 @@ def check_event(event_to_check:event.Event):
     return False
 
 def event_checker(exit_event):
+    global events
     while True:
         for e in events:
             if(check_event(e)):
                 [a.Do() for a in e.actions]    
-        
+            
         if(exit_event.is_set()):
             return False
         

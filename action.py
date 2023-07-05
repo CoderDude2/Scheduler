@@ -3,11 +3,17 @@ import os
 from plyer import notification
 
 commands = {
-    "open":lambda *args: (os.system(f'open {args[0]}')),
+    "open":lambda *args: (open_file(args[0])),
     "open-link":lambda *args: (webbrowser.open(args[0])),
     "notify": lambda *args:(notification.notify(title=args[0], message=args[1], timeout=5)),
     "run": lambda *args: (os.system(args[0]))
 }
+
+def open_file(path):
+    if(os.name == 'nt'):
+        os.system(f'start {path}')
+    elif(os.name == 'posix'):
+        os.system(f'open {path}')
 
 class Action:
     def __init__(self, command, *args):
