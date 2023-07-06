@@ -8,6 +8,18 @@ BIWEEKLY = 2
 MONTHLY = 3
 YEARLY = 4
 
+def get_repeat_text(repeat_option:int) -> str:
+    if(repeat_option == 0):
+        return "never"
+    elif(repeat_option == 1):
+        return "weekly"
+    elif(repeat_option == 2):
+        return "bi-weekly"
+    elif(repeat_option == 3):
+        return "monthly"
+    elif(repeat_option == 4):
+        return "yearly"
+
 class Event:
     def __init__(self, name="", _date=date(1970, 1, 1), _time=time(0,0), actions=[], repeat=[]):
         self.name = name

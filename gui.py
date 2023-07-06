@@ -235,6 +235,33 @@ def delete_event():
 
     events.pop(inp[0] - 1)
 
+def select_event():
+    clear()
+    global events
+
+    igui.menu([e.name for e in events])
+    inp = input()
+
+    if(inp == "$c"):
+        return
+    
+    inp = igui.parse_input(inp)
+
+    return events[(inp[0] - 1)]
+
+def edit_event(event_to_edit:event.Event):
+    clear()
+    print(f"Name: {event_to_edit.name}")
+    print(f"Date: {event_to_edit._date}")
+    print(f"Time: {event_to_edit._time}")
+    print(f"Repeat: { event.get_repeat_text(event_to_edit.repeat['repeat']) }")
+
+    print("\nActions:")
+    print("-"*25)
+    [print(a) for a in event_to_edit.actions]
+    print("-"*25)
+    input()
+
 def gui():
     global events
     while True:
@@ -258,6 +285,8 @@ def gui():
                     event = create_event()
                     if(event):
                         events.append(event)
+                elif(inp[0] == 2):
+                    print(edit_event(select_event()))
                 elif(inp[0] == 3):
                     delete_event()
                 if(inp[0] == 4):
