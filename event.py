@@ -1,23 +1,26 @@
 from datetime import date, time
-import calendar
+
 import action
 
 NEVER = 0
-WEEKLY = 1
-BIWEEKLY = 2
-MONTHLY = 3
-YEARLY = 4
+DAILY = 1
+WEEKLY = 2
+BIWEEKLY = 3
+MONTHLY = 4
+YEARLY = 5
 
 def get_repeat_text(repeat_option:int) -> str:
-    if(repeat_option == 0):
+    if(repeat_option == NEVER):
         return "never"
-    elif(repeat_option == 1):
+    elif(repeat_option == DAILY):
+        return "daily"
+    elif(repeat_option == WEEKLY):
         return "weekly"
-    elif(repeat_option == 2):
+    elif(repeat_option == BIWEEKLY):
         return "bi-weekly"
-    elif(repeat_option == 3):
+    elif(repeat_option == MONTHLY):
         return "monthly"
-    elif(repeat_option == 4):
+    elif(repeat_option == YEARLY):
         return "yearly"
 
 class Event:

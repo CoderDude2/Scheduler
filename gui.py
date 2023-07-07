@@ -104,6 +104,7 @@ def repeat_menu():
         clear()
 
         igui.menu(options=[
+            "Daily",
             "Weekly",
             "Bi-Weekly",
             "Monthly",
@@ -116,18 +117,21 @@ def repeat_menu():
         try:
             inp = int(inp)
             if(inp == 1):
-                output['repeat'] = event.WEEKLY
+                output['repeat'] = event.DAILY
                 break
             elif(inp == 2):
-                output['repeat'] = event.BIWEEKLY
+                output['repeat'] = event.WEEKLY
                 break
             elif(inp == 3):
-                output['repeat'] = event.MONTHLY
+                output['repeat'] = event.BIWEEKLY
                 break
             elif(inp == 4):
-                output['repeat'] = event.YEARLY
+                output['repeat'] = event.MONTHLY
                 break
             elif(inp == 5):
+                output['repeat'] = event.YEARLY
+                break
+            elif(inp == 6):
                 output['repeat'] = event.NEVER
                 break
         except ValueError:
@@ -307,8 +311,6 @@ def edit_event(event_to_edit:event.Event):
                 if(inp[0] == 6):
                     break
 
-events = load_events()
-
 def gui():
     global events
     while True:
@@ -347,6 +349,10 @@ def check_event(event_to_check:event.Event):
 
     if(event_to_check.repeat['repeat'] == event.NEVER):
         if(current_date == event_to_check._date 
+        and current_time == event_to_check._time):
+            return True
+    elif(event_to_check.repeat['repeat'] == event.DAILY):
+        if(current_date >= event_to_check._date 
         and current_time == event_to_check._time):
             return True
     elif(event_to_check.repeat['repeat'] == event.WEEKLY):
@@ -389,10 +395,12 @@ def event_checker(exit_event):
         
         time.sleep(1)
 
+events = load_events()
 exit_event = threading.Event()
-t = threading.Thread(target=event_checker, args=(exit_event, ))
 
 def main():
+    t = threading.Thread(target=event_checker, args=(exit_event, ))
+    
     t.start()
     gui()
     t.join()
