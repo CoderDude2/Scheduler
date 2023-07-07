@@ -35,11 +35,13 @@ def load_events():
             file.write('[]')
         return []
 
-def action_editor(actions=[]):
+def action_editor(actions=None):
 
-    if(actions):
+    if(actions is not None):
         actions = actions
-
+    else:
+        actions = []
+    
     while True:
         clear()
         
@@ -236,22 +238,19 @@ def create_event() -> event.Event:
 
 def delete_event():
     global events
-    while True:
-        clear()
-        igui.menu([e.name for e in events])
-        inp = input()
+    clear()
+    igui.menu([e.name for e in events])
+    inp = input()
 
-        if(inp == '$c'):
-            return
+    if(inp == '$c'):
+        return
 
-        inp = igui.parse_input(inp)
+    inp = igui.parse_input(inp)
 
-        if(inp != None):
-            try:
-                events.pop(inp[0] - 1)
-                break
-            except IndexError:
-                continue
+    if(inp[0] == '$c'):
+        return
+
+    events.pop(inp[0] - 1)
 
 def select_event() -> event.Event:
     while True:
@@ -341,6 +340,7 @@ def gui():
                     event = create_event()
                     if(event):
                         events.append(event)
+                        save_events(events)
                 elif(inp[0] == 2):
                     edit_event(select_event())
                 elif(inp[0] == 3):
