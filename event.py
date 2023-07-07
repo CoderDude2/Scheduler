@@ -30,7 +30,6 @@ class Event:
         self._time = _time
         self.actions = actions
         self.repeat = repeat
-        self.ran = False
 
     def get_date(self):
         return self._date
