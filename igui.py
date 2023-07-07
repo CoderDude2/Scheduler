@@ -9,7 +9,7 @@ def parse_input(msg) -> list[int]:
     msg = ''.join(msg.split(" ")).split(',')
     output = []
 
-    for index, inp in enumerate(msg):
+    for inp in msg:
         if('-' in inp):
             try:
                 minimum_value = int(inp.split('-')[0])

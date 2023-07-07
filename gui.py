@@ -1,16 +1,14 @@
 import calendar
+import json
 import os
+import threading
 import time
 from datetime import date, datetime
 from datetime import time as dtime
-import threading
-import json
 
 import action
 import event
 import igui
-
-
 
 
 def clear():
@@ -26,17 +24,21 @@ def save_events(events):
         file.write(json_events)
 
 def load_events():
-    with open('events.json', 'r') as file:
-        contents = file.read()
-    
-    json_events = [event.deserialize(e) for e in json.loads(contents)]
-    return json_events
+    try:
+        with open('events.json', 'r') as file:
+            contents = file.read()
+        
+        json_events = [event.deserialize(e) for e in json.loads(contents)]
+        return json_events
+    except FileNotFoundError:
+        with open('events.json', 'w+') as file:
+            file.write('[]')
+        return []
 
-events = load_events()
+def action_editor(actions=[]):
 
-def action_editor():
-
-    actions = []
+    if(actions):
+        actions = actions
 
     while True:
         clear()
@@ -54,41 +56,51 @@ def action_editor():
             return
 
         inp = igui.parse_input(inp)
+        
+        if(inp):
+            if(inp[0] == 1):
+                clear()
+                igui.menu(options=[
+                    "Open Path",
+                    "Open Link",
+                    "Notify",
+                    "Run"
+                ])
 
-        if(inp[0] == 1):
-            clear()
-            igui.menu(options=[
-                "Open Path",
-                "Open Link",
-                "Notify",
-                "Run"
-            ])
+                inp2 = input()
+                if(inp2 == '$c'):
+                    return
 
-            inp2 = input()
-            if(inp2 == '$c'):
-                return
+                inp2 = igui.parse_input(inp2)
 
-            inp2 = igui.parse_input(inp2)
+                if(inp2[0] == 1):
+                    path = str(input("Enter Path: "))
 
-            if(inp2[0] == 1):
-                path = str(input("Enter Path: "))
+                    actions.append(action.Action('open', path))
+                elif(inp2[0] == 2):
+                    link = str(input("Enter Link: "))
 
-                actions.append(action.Action('open', path))
-            elif(inp2[0] == 2):
-                link = str(input("Enter Link: "))
+                    actions.append(action.Action('open-link', link))
+                elif(inp2[0] == 3):
+                    title = str(input("Enter Title: "))
+                    message = str(input("Enter Message: "))
 
-                actions.append(action.Action('open-link', link))
-            elif(inp2[0] == 3):
-                title = str(input("Enter Title: "))
-                message = str(input("Enter Message: "))
+                    actions.append(action.Action('notify', title, message))
+                elif(inp2[0] == 4):
+                    command = str(input("Enter Command: "))
 
-                actions.append(action.Action('notify', title, message))
-            elif(inp2[0] == 4):
-                command = str(input("Enter Command: "))
+                    actions.append(action.Action('run', command))
+            if(inp[0] == 2):
+                clear()
+                igui.menu([a for a in actions])
+                inp = input()
 
-                actions.append(action.Action('run', command))
-        if(inp[0] == 3):
-            return actions
+                if(inp != '$c'):
+                    inp = igui.parse_input(inp)
+
+                    actions.pop(inp[0]-1)
+            if(inp[0] == 3):
+                return actions
 
 def repeat_menu():
     output = {'days':[], 'repeat':0}
@@ -97,6 +109,7 @@ def repeat_menu():
         clear()
 
         igui.menu(options=[
+            "Daily",
             "Weekly",
             "Bi-Weekly",
             "Monthly",
@@ -109,18 +122,21 @@ def repeat_menu():
         try:
             inp = int(inp)
             if(inp == 1):
-                output['repeat'] = event.WEEKLY
+                output['repeat'] = event.DAILY
                 break
             elif(inp == 2):
-                output['repeat'] = event.BIWEEKLY
+                output['repeat'] = event.WEEKLY
                 break
             elif(inp == 3):
-                output['repeat'] = event.MONTHLY
+                output['repeat'] = event.BIWEEKLY
                 break
             elif(inp == 4):
-                output['repeat'] = event.YEARLY
+                output['repeat'] = event.MONTHLY
                 break
             elif(inp == 5):
+                output['repeat'] = event.YEARLY
+                break
+            elif(inp == 6):
                 output['repeat'] = event.NEVER
                 break
         except ValueError:
@@ -212,7 +228,6 @@ def create_event() -> event.Event:
         return
     
     actions = action_editor()
-    print(actions)
     if(actions is None):
         return
 
@@ -238,32 +253,70 @@ def delete_event():
             except IndexError:
                 continue
 
-def select_event():
-    clear()
-    global events
+def select_event() -> event.Event:
+    while True:
+        clear()
+        global events
 
-    igui.menu([e.name for e in events])
-    inp = input()
+        igui.menu([e.name for e in events])
+        inp = input()
 
-    if(inp == "$c"):
-        return
-    
-    inp = igui.parse_input(inp)
+        if(inp == "$c"):
+            return
+        
+        inp = igui.parse_input(inp)
 
-    return events[(inp[0] - 1)]
+        if(inp):
+            try:
+                return events[(inp[0] - 1)]
+            except IndexError:
+                continue
 
 def edit_event(event_to_edit:event.Event):
-    clear()
-    print(f"Name: {event_to_edit.name}")
-    print(f"Date: {event_to_edit._date}")
-    print(f"Time: {event_to_edit._time}")
-    print(f"Repeat: { event.get_repeat_text(event_to_edit.repeat['repeat']).capitalize() }")
+    if(event_to_edit):
+        while True:
+            clear()
+            print(f"1) Name: {event_to_edit.name}")
+            print(f"2) Date: {event_to_edit._date}")
+            print(f"3) Time: {event_to_edit._time}")
+            print(f"4) Repeat: { event.get_repeat_text(event_to_edit.repeat['repeat']) }")
+            print("5) Actions")
+            print("\n6) Done")
 
-    print("\nActions:")
-    print("-"*25)
-    [print(a) for a in event_to_edit.actions]
-    print("-"*25)
-    input()
+            inp = input()
+
+            if(inp == '$c'):
+                return
+            
+            inp = igui.parse_input(inp)
+
+            if(inp):
+                if(inp[0] == 1):
+                    clear()
+                    new_name = input("Enter Name: ")
+                    if(new_name != "$c"):
+                        event_to_edit.name = new_name
+                if(inp[0] == 2):
+                    clear()
+                    new_date = get_date()
+                    if(new_date):
+                        event_to_edit._date = new_date
+                if(inp[0] == 3):
+                    clear()
+                    new_time = get_time()
+                    if(new_time):
+                        event_to_edit._time = new_time
+                if(inp[0] == 4):
+                    clear()
+                    new_repeat = repeat_menu()
+                    if(new_repeat):
+                        event_to_edit.repeat = new_repeat
+                if(inp[0] == 5):
+                    new_actions = action_editor(event_to_edit.actions)
+                    if(new_actions):
+                        event_to_edit.actions = new_actions
+                if(inp[0] == 6):
+                    break
 
 def gui():
     global events
@@ -289,7 +342,7 @@ def gui():
                     if(event):
                         events.append(event)
                 elif(inp[0] == 2):
-                    print(edit_event(select_event()))
+                    edit_event(select_event())
                 elif(inp[0] == 3):
                     delete_event()
                 if(inp[0] == 4):
@@ -303,6 +356,10 @@ def check_event(event_to_check:event.Event):
 
     if(event_to_check.repeat['repeat'] == event.NEVER):
         if(current_date == event_to_check._date 
+        and current_time == event_to_check._time):
+            return True
+    elif(event_to_check.repeat['repeat'] == event.DAILY):
+        if(current_date >= event_to_check._date 
         and current_time == event_to_check._time):
             return True
     elif(event_to_check.repeat['repeat'] == event.WEEKLY):
@@ -345,10 +402,12 @@ def event_checker(exit_event):
         
         time.sleep(1)
 
+events = load_events()
 exit_event = threading.Event()
-t = threading.Thread(target=event_checker, args=(exit_event, ))
 
 def main():
+    t = threading.Thread(target=event_checker, args=(exit_event, ))
+    
     t.start()
     gui()
     t.join()

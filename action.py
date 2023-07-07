@@ -1,5 +1,6 @@
-import webbrowser
 import os
+import webbrowser
+
 from plyer import notification
 
 commands = {
