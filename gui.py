@@ -24,13 +24,18 @@ def save_events(events):
         file.write(json_events)
 
 def load_events():
-    with open('events.json', 'r') as file:
-        contents = file.read()
-    
-    json_events = [event.deserialize(e) for e in json.loads(contents)]
-    return json_events
+    try:
+        with open('events.json', 'r') as file:
+            contents = file.read()
+        
+        json_events = [event.deserialize(e) for e in json.loads(contents)]
+        return json_events
+    except FileNotFoundError:
+        with open('events.json', 'w+') as file:
+            file.write('[]')
+        return []
 
-def action_editor(actions):
+def action_editor(actions=[]):
 
     if(actions):
         actions = actions
@@ -223,7 +228,6 @@ def create_event() -> event.Event:
         return
     
     actions = action_editor()
-    print(actions)
     if(actions is None):
         return
 
